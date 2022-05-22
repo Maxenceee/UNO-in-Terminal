@@ -197,7 +197,7 @@ def changer_de_couleur():
 
     res = input("Choisi une couleur (R, B, V, J) : ").upper()
     while res not in COULEUR_CARTES:
-        res = input("Ce n'est pas un couleur disponible reessaye : ").upper()
+        res = input("Ce n'est pas un couleur disponible réessaye : ").upper()
     CHANGEMENT_COULEUR = [True, res]
 
 
@@ -208,7 +208,7 @@ def carte_a_effet(carte, idx):
 
     # donne l'indice du joueur suivant selon le sens du jeu
     app_j = idx + 1 if SENS_HORRAIRE else -1
-    if app_j >= len(JOUEURS):
+    if app_j >= len(JOUEURS)-1:
         app_j = 0
     elif app_j < 0:
         app_j = len(JOUEURS)
@@ -268,10 +268,10 @@ def jouer_carte(joueur):
     # et oblige a complexifié
     if CHANGEMENT_COULEUR[0]:
         #si changement de couleur afficher la couleur a jouer
-        chan_c = f"Couleur à jouer : \033[0;0m{colore_carte(CHANGEMENT_COULEUR[1])}"
+        chan_c = f"\033[0;0mCouleur à jouer : \033[0;0m{colore_carte(CHANGEMENT_COULEUR[1])}"
     else:
         chan_c = ""
-    print("\033[0;36mDerniere carte jouée", colore_carte(CARTE_JOUEES[-1]), "\033[0;0m", chan_c)
+    print("\033[0;36mDerniere carte jouée :", colore_carte(CARTE_JOUEES[-1]), chan_c)
 
     list_j = list_to_string(JOUEURS[joueur])
     paqt = (f"\nVoici ton paquet choisi quelle carte tu veux jouer : {list_j}")
@@ -293,7 +293,7 @@ def est_la_fin_jeu(arg):
     for i, j in enumerate(arg):
         if len(j) == 0:
             #un joueur a son paquet vide
-            print(f"\033[0;31mJoueur {i} gagne la partie")
+            print(f"\n\n\033[0;31mJoueur {i} gagne la partie\n")
             return True
     return False
 
