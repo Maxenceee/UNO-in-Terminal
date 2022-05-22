@@ -156,18 +156,22 @@ def choisir_carte(arg, derniere):
     res = input("Choisi une carte à jouer : ").upper()
 
     if res == "N":
-        arg.append(*tirage_cartes_tas(1))
-        return arg, None
+        #ajoute la carte tiree au paquet du joueur
+        tir = tirage_cartes_tas(1)
+        arg.append(*tir)
+        return arg, *tir, True
     #tant que la rep n'entre pas dans les criteres
     while not len(res) > 0 or res not in arg or not peut_jouer_carte(res, derniere):
         res = input("Tu ne peux pas jouer carte choisi bien : ").upper()
         if res == "N":
-            arg.append(*tirage_cartes_tas(1))
-            return arg, None
+            #ajoute la carte tiree au paquet du joueur
+            tir = tirage_cartes_tas(1)
+            arg.append(*tir)
+            return arg, *tir, True
 
     idx = arg.index(res)
     arg.pop(idx)
-    return arg, res
+    return arg, res, False
 
 
 def peut_jouer_carte(arg, carte):
@@ -258,6 +262,30 @@ def nom_carte(carte):
         return COULEUR_CARTES[carte[0]]
 
 
+def jouer_carte_triree(joueur, carte, derniere):
+    """permet de jouer une carte piochee par un joueur"""
+
+    global JOUEURS
+
+    jouable = peut_jouer_carte(carte, derniere)
+    txt = f"Ta carte est un {colore_carte(carte)}, tu "
+    txt += ("peux" if jouable else "ne peux pas")+" jouer cette carte. "
+    txt += ("Veux tu la jouer ? (oui, non) " if jouable else "(entrer) ")
+
+    res = input(txt)
+    if not jouable:
+        #si la carte n'est pas jouable pas d'actions supplementaires
+        return
+    while res not in ('oui', 'non'):
+        res = input("Tu ne peux repondre que par oui ou par non : ")
+    
+    if res == 'oui':
+        idx = JOUEURS[joueur].index(carte)
+        JOUEURS[joueur].pop(idx)
+        CARTE_JOUEES.append(carte)
+        carte_a_effet(carte, joueur)
+    
+
 def jouer_carte(joueur):
     """demande quelle carte jouer"""
 
@@ -277,14 +305,17 @@ def jouer_carte(joueur):
     paqt = (f"\nVoici ton paquet choisi quelle carte tu veux jouer : {list_j}")
     print(f"\n\033[0;33mJoueur {joueur+1}\033[0;0m à toi de jouer !\n", paqt, '\n')
 
+    #carte jouee
     res = choisir_carte(JOUEURS[joueur], CARTE_JOUEES[-1])
 
-    JOUEURS[joueur], n_carte_jouee = res
+    JOUEURS[joueur], n_carte_jouee, tirage = res
     #si le joueur a joué une carte l'ajouter aux cartes jouees
     # et la retirer de son paquet
-    if n_carte_jouee is not None:
+    if not tirage:
         CARTE_JOUEES.append(n_carte_jouee)
         carte_a_effet(n_carte_jouee, joueur)
+    else:
+        jouer_carte_triree(joueur, n_carte_jouee, CARTE_JOUEES[-1])
 
 
 def est_la_fin_jeu(arg):
